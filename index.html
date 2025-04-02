@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双眼表情模拟器 - XC016IWV8611ANT</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1000px;
+        }
+        
+        .controls {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .eyes-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .eye-display {
+            position: relative;
+        }
+        
+        .device-frame {
+            background-color: #333;
+            border-radius: 50%;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .screen-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            overflow: hidden;
+            background-color: black;
+            border-radius: 50%;
+        }
+        
+        .screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 50%;
+        }
+        
+        .preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .rulers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-sizing: border-box;
+            display: none;
+            border-radius: 50%;
+        }
+        
+        .physical-dimensions {
+            position: absolute;
+            bottom: -30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .uploaded-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .thumbnail:hover, .thumbnail.active {
+            border-color: #4285f4;
+        }
+        
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        input[type="file"] {
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #3b78e7;
+        }
+        
+        select, input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+        
+        .flex-column {
+            flex: 1;
+        }
+        
+        .disclaimer {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .info-value {
+            font-weight: normal;
+            color: #666;
+        }
+        
+        .pixel-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .eye-label {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .size-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .size-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .sync-eyes {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .sync-eyes input {
+            margin-right: 8px;
+        }
+        
+        .status-indicator {
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background-color: #eee;
+            margin-top: 5px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: #4285f4;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 900px) {
+            .eyes-container {
+                flex-direction: column;
+                gap: 50px;
+            }
+            
+            .screen-container {
+                width: 300px;
+                height: 300px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .flex-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .screen-container {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>双眼表情模拟器</h1>
+        
+        <div class="controls">
+            <div class="flex-row">
+                <div class="flex-column">
+                    <div class="control-group">
+                        <label for="fileInput">上传眼睛表情 GIF:</label>
+                        <input type="file" id="fileInput" accept="image/gif,image/png,image/jpeg" multiple>
+                        <div class="status-indicator" id="statusIndicator">请上传眼睛表情图片或动画</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>同步设置:</label>
+                        <div class="sync-eyes">
+                            <input type="checkbox" id="syncEyes" checked>
+                            <label for="syncEyes">同步左右眼睛</label>
+                        </div>
+                        <div class="sync-eyes">
+                            <input type="checkbox" id="mirrorEyes">
+                            <label for="mirrorEyes">镜像显示右眼</label>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>显示设置:</label>
+                        <div>
+                            <label for="refreshRate">刷新率: <span class="info-value" id="refreshRateValue">60 Hz</span></label>
+                            <input type="range" id="refreshRate" min="30" max="120" value="60">
+                        </div>
+                        <div>
+                            <label for="brightness">亮度: <span class="info-value" id="brightnessValue">100%</span></label>
+                            <input type="range" id="brightness" min="20" max="100" value="100">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex-column">
+                    <div class="control-group">
+                        <label>显示选项:</label>
+                        <div>
+                            <button id="toggleRulers">显示网格</button>
+                            <button id="resetBtn">重置</button>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>屏幕特性:</label>
+                        <p><strong>型号:</strong> XC016IWV8611ANT</p>
+                        <p><strong>分辨率:</strong> 400 × 400 像素</p>
+                        <p><strong>物理尺寸:</strong> 1.6 英寸圆形 (直径 39.84mm)</p>
+                        <p><strong>颜色深度:</strong> 16.7M 色</p>
+                        <div class="pixel-info">每像素物理尺寸: 0.0996mm × 0.0996mm</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="size-controls">
+                <button class="size-btn" data-size="200">小尺寸 (200px)</button>
+                <button class="size-btn" data-size="300">中尺寸 (300px)</button>
+                <button class="size-btn" data-size="400">大尺寸 (400px)</button>
+                <button class="size-btn" data-size="actual">实际尺寸 (39.84mm)</button>
+            </div>
+        </div>
+        
+        <div class="eyes-container">
+            <div class="eye-display">
+                <div class="eye-label">左眼</div>
+                <div class="device-frame">
+                    <div class="screen-container" id="leftEyeContainer">
+                        <div class="screen">
+                            <img id="leftEyePreview" class="preview" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="左眼预览">
+                        </div>
+                        <div class="rulers" id="leftEyeRulers"></div>
+                    </div>
+                    <div class="physical-dimensions">直径: 39.84mm</div>
+                </div>
+            </div>
+            
+            <div class="eye-display">
+                <div class="eye-label">右眼</div>
+                <div class="device-frame">
+                    <div class="screen-container" id="rightEyeContainer">
+                        <div class="screen">
+                            <img id="rightEyePreview" class="preview" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="右眼预览">
+                        </div>
+                        <div class="rulers" id="rightEyeRulers"></div>
+                    </div>
+                    <div class="physical-dimensions">直径: 39.84mm</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="uploaded-images" id="uploadedImages">
+            <!-- 上传的图片缩略图会显示在这里 -->
+        </div>
+        
+        <p class="disclaimer">注: 此模拟器根据 XC016IWV8611ANT 规格设计，模拟1.6英寸圆形屏幕的双眼显示效果。实际效果可能因设备校准和屏幕特性而有所不同。</p>
+    </div>
+    
+    <script>
+        let images = [];
+        let currentImageIndex = 0;
+        
+        // 获取DOM元素
+        const fileInput = document.getElementById('fileInput');
+        const leftEyePreview = document.getElementById('leftEyePreview');
+        const rightEyePreview = document.getElementById('rightEyePreview');
+        const uploadedImagesContainer = document.getElementById('uploadedImages');
+        const refreshRateSlider = document.getElementById('refreshRate');
+        const refreshRateValue = document.getElementById('refreshRateValue');
+        const brightnessSlider = document.getElementById('brightness');
+        const brightnessValue = document.getElementById('brightnessValue');
+        const toggleRulersBtn = document.getElementById('toggleRulers');
+        const resetBtn = document.getElementById('resetBtn');
+        const leftEyeContainer = document.getElementById('leftEyeContainer');
+        const rightEyeContainer = document.getElementById('rightEyeContainer');
+        const leftEyeRulers = document.getElementById('leftEyeRulers');
+        const rightEyeRulers = document.getElementById('rightEyeRulers');
+        const syncEyesCheckbox = document.getElementById('syncEyes');
+        const mirrorEyesCheckbox = document.getElementById('mirrorEyes');
+        const sizeBtns = document.querySelectorAll('.size-btn');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const progressBar = document.getElementById('progressBar');
+        
+        // 默认圆形眼睛背景
+        const defaultEyeImage = createCircularBackground();
+        leftEyePreview.src = defaultEyeImage;
+        rightEyePreview.src = defaultEyeImage;
+        
+        // 文件上传处理
+        fileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (!files.length) return;
+            
+            images = [];
+            uploadedImagesContainer.innerHTML = '';
+            
+            statusIndicator.textContent = '正在处理文件...';
+            progressBar.style.width = '0%';
+            
+            // 跟踪已加载的文件数量
+            let loadedFiles = 0;
+            
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    const imageData = {
+                        src: event.target.result,
+                        name: file.name,
+                        type: file.type
+                    };
+                    
+                    // 检测是否为GIF
+                    const isGif = file.type === 'image/gif';
+                    
+                    // 创建新图像对象来获取尺寸信息
+                    const img = new Image();
+                    
+                    img.onload = function() {
+                        imageData.width = img.naturalWidth;
+                        imageData.height = img.naturalHeight;
+                        imageData.isGif = isGif;
+                        
+                        images.push(imageData);
+                        
+                        // 创建缩略图
+                        const thumbnail = document.createElement('div');
+                        thumbnail.className = 'thumbnail' + (index === 0 ? ' active' : '');
+                        thumbnail.innerHTML = `<img src="${event.target.result}" alt="Thumbnail ${index + 1}">`;
+                        
+                        thumbnail.addEventListener('click', () => {
+                            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                            thumbnail.classList.add('active');
+                            currentImageIndex = index;
+                            updateEyePreviews(images[index].src, images[index].isGif);
+                        });
+                        
+                        uploadedImagesContainer.appendChild(thumbnail);
+                        
+                        // 更新进度
+                        loadedFiles++;
+                        const progress = Math.round((loadedFiles / files.length) * 100);
+                        progressBar.style.width = `${progress}%`;
+                        
+                        // 如果全部加载完成
+                        if (loadedFiles === files.length) {
+                            statusIndicator.textContent = `已加载 ${files.length} 个文件`;
+                            
+                            // 如果是第一张图片，显示在预览区
+                            if (images.length > 0) {
+                                updateEyePreviews(images[0].src, images[0].isGif);
+                                currentImageIndex = 0;
+                            }
+                        }
+                    };
+                    
+                    img.src = event.target.result;
+                };
+                
+                reader.onerror = function() {
+                    loadedFiles++;
+                    statusIndicator.textContent = `加载文件时出错: ${file.name}`;
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        // 更新眼睛预览
+        function updateEyePreviews(imageSrc, isGif) {
+            // 直接设置左眼
+            leftEyePreview.src = imageSrc;
+            
+            if (syncEyesCheckbox.checked) {
+                if (mirrorEyesCheckbox.checked && !isGif) {
+                    // 如果不是GIF，创建镜像图像
+                    createMirroredImage(imageSrc, function(mirroredSrc) {
+                        rightEyePreview.src = mirroredSrc;
+                    });
+                } else if (mirrorEyesCheckbox.checked && isGif) {
+                    // 对于GIF，我们仍然使用原始图像，但在显示时添加镜像CSS
+                    rightEyePreview.src = imageSrc;
+                    rightEyePreview.style.transform = 'scaleX(-1)';
+                } else {
+                    // 正常同步
+                    rightEyePreview.src = imageSrc;
+                    rightEyePreview.style.transform = 'none';
+                }
+            }
+        }
+        
+        // 创建镜像图像（静态图像使用）
+        function createMirroredImage(imageSrc, callback) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                // 镜像图像
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(img, 0, 0, img.width, img.height);
+                
+                callback(canvas.toDataURL());
+            };
+            
+            img.src = imageSrc;
+        }
+        
+        // 创建默认的圆形背景
+        function createCircularBackground() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const size = 400;
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // 绘制黑色圆形背景
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制眼睛轮廓
+            const centerX = size/2;
+            const centerY = size/2;
+            const radius = size/5;
+            
+            // 白色眼白部分
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius * 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 蓝色/棕色虹膜
+            ctx.fillStyle = '#4682B4';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 黑色瞳孔
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 眼睛高光
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(centerX + radius * 0.2, centerY - radius * 0.3, radius * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            return canvas.toDataURL();
+        }
+        
+        // 刷新率调节
+        refreshRateSlider.addEventListener('input', function() {
+            refreshRateValue.textContent = `${this.value} Hz`;
+        });
+        
+        // 亮度调节
+        brightnessSlider.addEventListener('input', function() {
+            const brightness = this.value;
+            brightnessValue.textContent = `${brightness}%`;
+            leftEyePreview.style.filter = `brightness(${brightness/100})`;
+            rightEyePreview.style.filter = `brightness(${brightness/100})`;
+        });
+        
+        // 切换网格显示
+        toggleRulersBtn.addEventListener('click', function() {
+            if (leftEyeRulers.style.display === 'block') {
+                leftEyeRulers.style.display = 'none';
+                rightEyeRulers.style.display = 'none';
+                this.textContent = '显示网格';
+            } else {
+                createGrid(leftEyeRulers);
+                createGrid(rightEyeRulers);
+                leftEyeRulers.style.display = 'block';
+                rightEyeRulers.style.display = 'block';
+                this.textContent = '隐藏网格';
+            }
+        });
+        
+        // 重置按钮
+        resetBtn.addEventListener('click', function() {
+            leftEyePreview.style.filter = 'brightness(1)';
+            rightEyePreview.style.filter = 'brightness(1)';
+            brightnessSlider.value = 100;
+            brightnessValue.textContent = '100%';
+            refreshRateSlider.value = 60;
+            refreshRateValue.textContent = '60 Hz';
+            leftEyeRulers.style.display = 'none';
+            rightEyeRulers.style.display = 'none';
+            toggleRulersBtn.textContent = '显示网格';
+            
+            // 重置镜像样式
+            rightEyePreview.style.transform = 'none';
+            
+            // 重置图像为默认
+            if (images.length > 0) {
+                updateEyePreviews(images[currentImageIndex].src, images[currentImageIndex].isGif);
+            } else {
+                leftEyePreview.src = defaultEyeImage;
+                rightEyePreview.src = defaultEyeImage;
+            }
+        });
+        
+        // 同步眼睛复选框
+        syncEyesCheckbox.addEventListener('change', function() {
+            if (this.checked && images.length > 0) {
+                updateEyePreviews(images[currentImageIndex].src, images[currentImageIndex].isGif);
+            }
+        });
+        
+        // 镜像复选框
+        mirrorEyesCheckbox.addEventListener('change', function() {
+            if (syncEyesCheckbox.checked && images.length > 0) {
+                updateEyePreviews(images[currentImageIndex].src, images[currentImageIndex].isGif);
+            }
+        });
+        
+        // 尺寸按钮
+        sizeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const size = this.getAttribute('data-size');
+                let newSize;
+                
+                if (size === 'actual') {
+                    // 实际尺寸 (基于 DPI)
+                    const dpi = 96; // 假设为标准 96 DPI
+                    newSize = Math.round(39.84 * dpi / 25.4); // 毫米转像素
+                } else {
+                    newSize = parseInt(size);
+                }
+                
+                leftEyeContainer.style.width = `${newSize}px`;
+                leftEyeContainer.style.height = `${newSize}px`;
+                rightEyeContainer.style.width = `${newSize}px`;
+                rightEyeContainer.style.height = `${newSize}px`;
+            });
+        });
+        
+        // 创建网格
+        function createGrid(rulerElement) {
+            rulerElement.innerHTML = '';
+            
+            // 创建圆形网格
+            const gridHtml = document.createElement('div');
+            gridHtml.style.width = '100%';
+            gridHtml.style.height = '100%';
+            gridHtml.style.position = 'absolute';
+            gridHtml.style.top = '0';
+            gridHtml.style.left = '0';
+            
+            // 添加同心圆
+            for (let i = 1; i <= 10; i++) {
+                const circle = document.createElement('div');
+                const size = i * 10;
+                
+                circle.style.position = 'absolute';
+                circle.style.width = `${size}%`;
+                circle.style.height = `${size}%`;
+                circle.style.top = `${(100 - size) / 2}%`;
+                circle.style.left = `${(100 - size) / 2}%`;
+                circle.style.border = '1px solid rgba(255,255,255,0.2)';
+                circle.style.borderRadius = '50%';
+                
+                gridHtml.appendChild(circle);
+            }
+            
+            // 添加十字线
+            const horizontalLine = document.createElement('div');
+            horizontalLine.style.position = 'absolute';
+            horizontalLine.style.width = '100%';
+            horizontalLine.style.height = '1px';
+            horizontalLine.style.top = '50%';
+            horizontalLine.style.backgroundColor = 'rgba(255,255,255,0.3)';
+            
+            const verticalLine = document.createElement('div');
+            verticalLine.style.position = 'absolute';
+            verticalLine.style.width = '1px';
+            verticalLine.style.height = '100%';
+            verticalLine.style.left = '50%';
+            verticalLine.style.backgroundColor = 'rgba(255,255,255,0.3)';
+            
+            gridHtml.appendChild(horizontalLine);
+            gridHtml.appendChild(verticalLine);
+            
+            rulerElement.appendChild(gridHtml);
+        }
+    </script>
+</body>
+</html>
